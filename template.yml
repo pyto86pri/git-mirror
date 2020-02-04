@@ -38,4 +38,4 @@ Resources:
             Path: '/'
             Method: post
       Layers:
-        - !Sub arn:aws:lambda:${AWS::Region}:553035198032:layer:git:10
+        - !Sub arn:aws:lambda:${AWS::Region}:553035198032:layer:git:10  # Git 2.25.0

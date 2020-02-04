@@ -1,8 +1,5 @@
-# Gitリポジトリ同期
+# Gitリポジトリ同期API
 
-Gitをリポジトリ同期処理
-
-<!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
 * [About the Project](#about-the-project)
@@ -10,124 +7,55 @@ Gitをリポジトリ同期処理
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
-* [Development](#development)
-  * [PlantUML](#plantuml)
+* [Package](#package)
 * [Acknowledgements](#acknowledgements)
 
 
 ## About The Project
 
-TODO
+2つのGitリポジトリを一方向的に同期するAPIを作成する。
+
+Backlog Git → AWS CodeCommit → AWS CodePipeline
+
+などのユースケースを想定。
+
+Webhook機能を持つGitリポジトリがソースであれば適応可能。
+
+一方向的であるため、逆方向には対応していない。
+
+[カスタム AWS Lambda ランタイム](https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/runtimes-custom.html)で実現。
 
 ### Built With
+
+* [pahud/sam-cli-docker](https://github.com/pahud/sam-cli-docker)
+* [lambci/git-lambda-layer](https://github.com/lambci/git-lambda-layer)
 
 ## Getting Started
 
 ### Prerequisites
 
-* Python3.6
-* VSCode
-
-#### Pythonモジュール
-
-* pipenv
-
-```
-$ pip install pipenv
-```
+* [Docker](https://www.docker.com/)
+* [make](https://www.tutorialspoint.com/unix_commands/make.htm)
+* [bats](https://github.com/sstephenson/bats)
 
 ### Installation
 
-1. リポジトリのクローン
 ```sh
-$ git clone https://bitbucket.org/aruhi_opekal/asses.git
+$ make install
 ```
-3. Pythonモジュールのインストール
+
+## Test
+
 ```sh
-$ pipenv sync
-$ pipenv sync --dev
+$ make test
 ```
 
-<!-- DEVELOPMENT -->
-## Development
+## Package
 
-実際の変換処理は[こちら](https://bigtree.backlog.jp/git/AST/salesforce-api/tree/master)で実装
-
-### keyMapping
-
-Salesforceのカラム名とDynamoDBのカラム名の対応付けを定義。
-
-**keyMapping.json**
-```json
-{
-  "SalesforceColumnName": ["DynamoDBColumnName_1", "DynamoDBColumnName_2"],
-  ...
-}
-```
-上記のようなマッピングであった場合、下記のように変換される。
-
-**DynamoDB**
-```json
-{
-  "DynamoDBColumnName_1": {
-    "DynamoDBColumnName_2": "dummy"
-  }
-}
-```
-**Salesforce**
-```json
-{
-  "SalesforceColumnName": "dummy"
-}
-```
-#### 定数
-
-値にリストではなく定数を定義すると、定数がそのまま変換後に定義される。
-
-**keyMapping.json**
-```json
-{
-  "SalesforceColumnName": "Constant"
-  ...
-}
-```
-**Salesforce**
-```json
-{
-  "SalesforceColumnName": "Constant"
-}
-```
-#### 関数
-
-`Fn::Sum`という関数が定義されており、項目の和の連携が可能。
-
-### valueMapping
-
-オペカルでの値とSalesforceに連携する値の対応付けを定義。
-
-**valueMapping.json**
-```json
-{
-  "DynamoDBValue": "SalesforceValue",
-  ...
-}
-```
-上記のようなマッピングであった場合、下記のように値が変換される。
-
-**DynamoDB**
-```json
-{
-  "DynamoDBColumn": "DynamoDBValue"
-}
-```
-**Salesforce**
-```json
-{
-  "SalesforceColumn": "SalesforceValue"
-}
+```sh
+$ BUCKET=${BUCKET} make package
 ```
 
-<!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-TODO
+* 何もインストールされないのは正常です。
