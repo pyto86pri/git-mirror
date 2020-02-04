@@ -1,8 +1,5 @@
 TEMPLATE_FILE := template.yml
 SAM_FILE := output/sam.yml
-BUCKET := local-artifacts-opkl
-STACK_NAME := test-git-mirror
-
 
 all:
 
