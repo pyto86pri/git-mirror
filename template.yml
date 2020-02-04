@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Lambda for Git mirror
+Parameters:
+  Tmp:
+    Type: String
+    Default: '/tmp'
+  FunctionName:
+    Type: String
+    Default: 'git-mirror-lambda'
+  Source:
+    Type: String
+    Description: Source git repository url with id and pass
+    AllowedPattern: '^https://.+:.+@.+$'
+  Target:
+    Type: String
+    Description: Target git repository url with id and pass
+    AllowedPattern: '^https://.+:.+@.+$'
+Resources:
+  GitMirror:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Ref FunctionName
+      CodeUri: src
+      Handler: function.handler
+      Runtime: provided
+      Environment:
+        Variables:
+          TMP: !Ref Tmp
+          SOURCE: !Ref Source
+          TARGET: !Ref Target
+      Tracing: Active
+      Timeout: 60
+      Events:
+        HttpPost:
+          Type: Api
+          Properties:
+            Path: '/'
+            Method: post
+      Layers:
+        - !Sub arn:aws:lambda:${AWS::Region}:553035198032:layer:git:10
