@@ -3,11 +3,13 @@
 ## Table of Contents
 
 * [About the Project](#about-the-project)
+  * [Usage](#usage)
   * [Built With](#built-with)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Package](#package)
+* [Deploy](#deploy)
 * [Acknowledgements](#acknowledgements)
 
 
@@ -81,6 +83,6 @@ $ STACK_NAME=${STACK_NAME} make deploy
 
 ## Acknowledgements
 
-* 何もインストールされないのは正常です。
+* `make install`で何もインストールされないのは正常です。
 
 ## Todo
