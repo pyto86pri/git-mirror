@@ -81,15 +81,15 @@ Resources:
   Api:
     Type: 'AWS::Serverless::Api'
     Properties:
-      # Auth:
-      #   ResourcePolicy:
-      #     IpRangeWhitelist:
-      #       - 54.248.107.22
-      #       - 54.248.105.89
-      #       - 54.238.168.195
-      #       - 52.192.66.90
-      #       - 54.65.251.183
-      #       - 54.250.148.49
+      Auth:
+        ResourcePolicy:
+          IpRangeWhitelist:
+            - 54.248.107.22
+            - 54.248.105.89
+            - 54.238.168.195
+            - 52.192.66.90
+            - 54.65.251.183
+            - 54.250.148.49
       StageName: v1
       DefinitionBody:
         swagger: '2.0'
@@ -108,7 +108,7 @@ Resources:
                 '200':
                   description: 200 response
                   content:
-                    application/json:
+                    application/x-www-form-urlencoded:
                       schema:
                         $ref: '#/components/schemas/Empty'
               x-amazon-apigateway-integration:
@@ -117,14 +117,20 @@ Resources:
                   default:
                     statusCode: 200
                 requestTemplates:
-                  application/json: !Sub |
+                  application/x-www-form-urlencoded: !Sub |
+                    #set ($payload = $util.parseJson($util.urlDecode($input.path('$').split('=')[1])))
                     {
                       "StreamName": "${Stream}",
-                      "Data": "$util.base64Encode("$util.urlDecode($input.params('target')) $input.path('$.repository.url')")",
-                      "PartitionKey": "partition-key-$input.params('target')"
+                      "Data": "$util.base64Encode("${!payload.repository.url}.git $util.urlDecode($input.params('target'))")",
+                      "PartitionKey": "partition-key-${!payload.repository.url}"
                     }
                 requestParameters:
                   integration.request.header.Content-Type: "'application/x-amz-json-1.1'"
                 uri: !Sub arn:aws:apigateway:${AWS::Region}:kinesis:action/PutRecord
                 httpMethod: post
                 type: AWS
+      MethodSettings:
+        - DataTraceEnabled: true
+          LoggingLevel: 'ERROR'
+          ResourcePath: '/*'
+          HttpMethod: '*'
