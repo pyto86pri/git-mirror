@@ -28,7 +28,7 @@ Webhook機能を持つGitリポジトリがソースであれば適応可能。
 ### Built With
 
 * [pahud/sam-cli-docker](https://github.com/pahud/sam-cli-docker)
-* [lambci/git-lambda-layer](https://github.com/lambci/git-lambda-layer)
+* [gkrizek/bash-lambda-layer](https://github.com/gkrizek/bash-lambda-layer)
 
 ## Getting Started
 
@@ -59,3 +59,9 @@ $ BUCKET=${BUCKET} make package
 ## Acknowledgements
 
 * 何もインストールされないのは正常です。
+
+## Todo
+
+* 複数リポジトリのWebhook拡張
+  * リポジトリ間マッピングの保持
+  * API Gateway → Kinesis Stream → Lambda

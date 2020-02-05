@@ -1,41 +1,130 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: AWS Lambda for Git mirror
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: Source Repository Configuration
+        Parameters:
+          - SourceId
+          - SourcePw
+      -
+        Label:
+          default: Target Repository Configuration
+        Parameters:
+          - TargetId
+          - TargetPw
 Parameters:
-  Tmp:
+  SourceId:
     Type: String
-    Default: '/tmp'
-  FunctionName:
+    Description: Source git repository id
+  SourcePw:
     Type: String
-    Default: 'git-mirror-lambda'
-  Source:
+    Description: Source git repository password
+    NoEcho: true
+  TargetId:
     Type: String
-    Description: Source git repository url with id and pass
-    AllowedPattern: '^https://.+:.+@.+$'
-  Target:
+    Description: Target git repository id
+  TargetPw:
     Type: String
-    Description: Target git repository url with id and pass
-    AllowedPattern: '^https://.+:.+@.+$'
+    Description: Target git repository password
+    NoEcho: true
 Resources:
-  GitMirror:
+  ApiRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Policies:
+        - PolicyName: DefaultRolePolicy
+          PolicyDocument:
+            Statement:
+              - Action: 'logs:*'
+                Resource: 'arn:aws:logs:*:*:*'
+                Effect: Allow
+              - Action: 'kinesis:*'
+                Resource: '*'
+                Effect: Allow
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Principal:
+              Service: apigateway.amazonaws.com
+            Effect: Allow
+  Function:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Ref FunctionName
       CodeUri: src
       Handler: function.handler
       Runtime: provided
       Environment:
         Variables:
-          TMP: !Ref Tmp
-          SOURCE: !Ref Source
-          TARGET: !Ref Target
+          SOURCE_ID: !Ref SourceId
+          SOURCE_PW: !Ref SourcePw
+          TARGET_ID: !Ref TargetId
+          TARGET_PW: !Ref TargetPw
       Tracing: Active
-      Timeout: 60
-      Events:
-        HttpPost:
-          Type: Api
-          Properties:
-            Path: '/'
-            Method: post
+      Timeout: 300
       Layers:
-        - !Sub arn:aws:lambda:${AWS::Region}:553035198032:layer:git:10  # Git 2.25.0
+        - !Sub arn:aws:lambda:${AWS::Region}:744348701589:layer:bash:8
+      Events:
+        Stream:
+          Type: Kinesis
+          Properties:
+            Stream: !GetAtt Stream.Arn
+            BatchSize: 1
+            StartingPosition: LATEST
+  Stream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      ShardCount: 1
+  Api:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      # Auth:
+      #   ResourcePolicy:
+      #     IpRangeWhitelist:
+      #       - 54.248.107.22
+      #       - 54.248.105.89
+      #       - 54.238.168.195
+      #       - 52.192.66.90
+      #       - 54.65.251.183
+      #       - 54.250.148.49
+      StageName: v1
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: 'Webhook for Backlog'
+        paths:
+          /{target}:
+            post:
+              parameters:
+                - name: target
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              responses:
+                '200':
+                  description: 200 response
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Empty'
+              x-amazon-apigateway-integration:
+                credentials: !GetAtt ApiRole.Arn
+                responses:
+                  default:
+                    statusCode: 200
+                requestTemplates:
+                  application/json: !Sub |
+                    {
+                      "StreamName": "${Stream}",
+                      "Data": "$util.base64Encode("$util.urlDecode($input.params('target')) $input.path('$.repository.url')")",
+                      "PartitionKey": "partition-key-$input.params('target')"
+                    }
+                requestParameters:
+                  integration.request.header.Content-Type: "'application/x-amz-json-1.1'"
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:kinesis:action/PutRecord
+                httpMethod: post
+                type: AWS
