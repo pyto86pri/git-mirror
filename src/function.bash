@@ -40,7 +40,7 @@ function handler () {
         fi
         cd $_FOLDER
         git fetch --prune
-        git push --prune $TARGET +refs/remotes/origin/*:refs/heads/* +refs/tags/*:refs/tags/*
+        git push --mirror $TARGET
         cd $TMP
     done
     echo 0
