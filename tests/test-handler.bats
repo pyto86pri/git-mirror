@@ -20,13 +20,9 @@ git() {
     return 0
 }
 
-@test "handlerテスト" {
-    run handler
-
-    [ -e $TMP/repo ]
-    [ "${status}" -eq 0 ]
-
-    run handler
+@test "basic_auth_urlテスト" {
+    run basic_auth_url 'https://dummy.git' 'dummy' '"#$%&=~^|\`@{[}]*:+;<,>.?/'
 
     [ "${status}" -eq 0 ]
+    [ "${output}" -eq 'https://dummy:%22%23%24%25%26%3D~%5E%7C%5C%60%40%7B%5B%7D%5D*%3A%2B%3B%3C%2C%3E.%3F%2F@dummy.git' ]
 }

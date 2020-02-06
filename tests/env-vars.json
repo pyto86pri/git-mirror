@@ -1,0 +1,8 @@
+{
+  "Function": {
+    "SOURCE_ID": "source",
+    "SOURCE_PW": "dummy",
+    "TARGET_ID": "target@example.com",
+    "TARGET_PW": "dummy"
+  }
+}

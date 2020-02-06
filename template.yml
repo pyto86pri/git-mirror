@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: AWS Lambda for Git mirror
+Description: API for Backlog Git Webhook
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -19,14 +19,14 @@ Metadata:
 Parameters:
   SourceId:
     Type: String
-    Description: Source git repository id
+    Description: Source git repository id (username)
   SourcePw:
     Type: String
     Description: Source git repository password
     NoEcho: true
   TargetId:
     Type: String
-    Description: Target git repository id
+    Description: Target git repository id (username)
   TargetPw:
     Type: String
     Description: Target git repository password
@@ -73,11 +73,17 @@ Resources:
           Properties:
             Stream: !GetAtt Stream.Arn
             BatchSize: 1
+            MaximumRetryAttempts: 3
+            DestinationConfig:
+              OnFailure:
+                Destination: !Ref Dlq
             StartingPosition: LATEST
   Stream:
     Type: AWS::Kinesis::Stream
     Properties:
       ShardCount: 1
+  Dlq:
+    Type: AWS::SNS::Topic
   Api:
     Type: 'AWS::Serverless::Api'
     Properties:

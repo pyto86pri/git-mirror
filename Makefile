@@ -1,3 +1,4 @@
+IMAGE := backlog-git-webhook.$(shell pwd | md5sum | awk '{print $$1}')
 TEMPLATE_FILE := template.yml
 SAM_FILE := sam.yml
 
@@ -12,21 +13,28 @@ test:
 	cd tests && \
 	bats test-handler.bats
 
+e2e:
+	pipenv run sam local invoke --debug \
+		-e tests/event.json \
+		-n tests/env-vars.json
+
 validate:
-	sam validate \
+	pipenv run sam validate \
 		--template $(TEMPLATE_FILE)
 
 package:
+	-docker image rm $(IMAGE)
+	docker build -t $(IMAGE) --build-arg BUCKET=$(BUCKET) . -q
 	docker run \
-		-v $(shell pwd):/home/samcli/ \
+		-v $(shell pwd):/home/samcli/work/ \
 		-v $(HOME)/.aws/:/home/samcli/.aws/ \
 		--rm \
-		$(shell docker build --build-arg BUCKET=$(BUCKET) . -q)
+		$(IMAGE)
 	-mv output/$(SAM_FILE) $(SAM_FILE)
-	-rm -rf output .aws .aws-sam
+	-rm -rf output
 
 deploy:
-	sam deploy \
+	pipenv run sam deploy \
 		--template-file $(SAM_FILE) \
 		--stack-name $(STACK_NAME) \
 		--capabilities CAPABILITY_IAM

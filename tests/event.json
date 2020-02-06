@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "partition-key-01",
+        "sequenceNumber": "49603935817478919937985330955755112653272324861696409602",
+        "data": "aHR0cHM6Ly9iaWd0cmVlLmJhY2tsb2cuanAvZ2l0L0FTVC9wd2EuZ2l0IGh0dHBzOi8vYml0YnVja2V0Lm9yZy9hcnVoaV9vcGVrYWwvdGVzdC5naXQ=",
+        "approximateArrivalTimestamp": 1580885399.613
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49603935817478919937985330955755112653272324861696409602",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::000000000000:role/backlog-git-webhook-FunctionRole",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:000000000000:stream/backlog-git-webhook-Stream"
+    }
+  ]
+}

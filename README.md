@@ -53,6 +53,8 @@ https://******.execute-api.******.amazonaws.com/v1/${ターゲットリポジト
 
 ### Prerequisites
 
+* [Python3.6](https://www.python.org/)
+* [pipenv](https://github.com/pypa/pipenv)
 * [Docker](https://www.docker.com/)
 * [make](https://www.tutorialspoint.com/unix_commands/make.htm)
 * [bats](https://github.com/sstephenson/bats)
@@ -84,5 +86,8 @@ $ STACK_NAME=${STACK_NAME} make deploy
 ## Acknowledgements
 
 * `make install`で何もインストールされないのは正常です。
+* ミラーリングについて、[How to properly mirror a git repository](https://sourcelevel.io/blog/how-to-properly-mirror-a-git-repository)を参考にしました。
 
 ## Todo
+
+* `sam local invoke`でのテスト(Layerの実行権限でエラーとなる)

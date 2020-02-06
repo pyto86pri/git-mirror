@@ -6,6 +6,8 @@ ENV BUCKET=$BUCKET
 ENV TEMPLATE_FILE=template.yml
 ENV SAM_FILE=output/sam.yml
 
+WORKDIR /home/samcli/work
+
 COPY . .
 
 CMD cd src && \

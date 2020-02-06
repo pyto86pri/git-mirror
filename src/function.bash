@@ -21,26 +21,26 @@ function basic_auth_url () {
 
 function handler () {
     EVENT=$1
-    log "$(git --version)"
     log "$EVENT"
-    xs=$(echo $EVENT | jq -r .Records[].kinesis.data | base64 -d)
-    log "$xs"
+    log "$(git --version)"
+    datas=$(echo $EVENT | jq -r .Records[].kinesis.data | base64 -d)
+    log "$datas"
     cd $TMP
-    for x in "${xs[@]}"
+    for data in "${datas[@]}"
     do
-        y=( $x )
-        SOURCE=$(basic_auth_url ${y[0]} $SOURCE_ID $SOURCE_PW)
+        source_target=( $data )
+        SOURCE=$(basic_auth_url ${source_target[0]} $SOURCE_ID $SOURCE_PW)
         log "$SOURCE"
-        TARGET=$(basic_auth_url ${y[1]} $TARGET_ID $TARGET_PW)
+        TARGET=$(basic_auth_url ${source_target[1]} $TARGET_ID $TARGET_PW)
         log "$TARGET"
-        _FOLDER="$(echo -n ${x[0]} | md5sum | awk '{print $1}')"
+        _FOLDER="$(echo -n ${source_target[0]} | md5sum | awk '{print $1}')"
         log "$_FOLDER"
         if [ ! -e $_FOLDER ]; then
             git clone --mirror $SOURCE $_FOLDER
         fi
         cd $_FOLDER
-        git fetch --all
-        git push --mirror $TARGET
+        git fetch --prune
+        git push --prune $TARGET +refs/remotes/origin/*:refs/heads/* +refs/tags/*:refs/tags/*
         cd $TMP
     done
     echo 0
