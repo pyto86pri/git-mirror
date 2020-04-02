@@ -8,6 +8,7 @@ clean:
 	-rm $(SAM_FILE)
 
 install:
+	pipenv sync --dev
 
 test:
 	cd tests && \

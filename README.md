@@ -21,7 +21,7 @@ Backlog Gitリポジトリから一方向的に他リポジトリにミラーリ
 
 Backlog Git → Bitbucket → CircleCI
 
-などのユースケースを想定。（BacklogはCIツールとの相性が悪いため）
+などのユースケースを想定。
 
 一方向的であるため、完全な同期はできない。
 
@@ -35,14 +35,16 @@ API Gateway → Kinesis Stream → Lambda
 
 Kinesis StreamのBatch SizeやShard Countを増やすことで、スループットを上げることが可能。
 
+![AWS構成図](https://github.com/pyto86pri/git-mirror/blob/docs/design.png)
+
 ### Usage
 
 利用時は、Backlog GitリポジトリのWebフックURLに以下を設定。
 
-https://******.execute-api.******.amazonaws.com/v1/${ターゲットリポジトリのURL}
+https://${APIID}.execute-api.${リージョン}.amazonaws.com/v1/${ターゲットリポジトリのURL}
 
 * ターゲットリポジトリのURL：ターゲットリポジトリのURLをURLエンコードした値
-  * 例："https://bigtree.backlog.jp/git/AST/git-mirror.git" → "https%3A%2F%2Fbigtree.backlog.jp%2Fgit%2FAST%2Fgit-mirror.git"
+  * 例："https://example.backlog.jp/git/AST/git-mirror.git" → "https%3A%2F%2Fexample.backlog.jp%2Fgit%2FAST%2Fgit-mirror.git"
 
 ### Built With
 

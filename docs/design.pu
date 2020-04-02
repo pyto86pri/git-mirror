@@ -1,0 +1,34 @@
+@startuml
+title AWS Diagram
+
+!include <awslib/AWSCommon>
+!include <awslib/Analytics/Kinesis>
+!include <awslib/ApplicationIntegration/SNSTopic>
+!include <awslib/Compute/Lambda>
+!include <awslib/General/GenericDatabase>
+!include <awslib/GroupIcons/Cloud>
+!include <awslib/GroupIcons/ServerContents>
+!include <awslib/Mobile/APIGateway>
+
+
+ServerContents(backlog, "Backlog", ""){
+    GenericDatabase(backloggit, "Backlog Git Repository", "")
+}
+Cloud(aws, "AWS", "") {
+    APIGateway(api, "", "")
+    Kinesis(stream, "", "")
+    SNSTopic(dlq, "", "DeadLetterQueue")
+    Lambda(function, "", "")
+}
+ServerContents(target, "Other Host", ""){
+    GenericDatabase(targetgit, "Target Git Repository", "")
+}
+
+backlog -r-> api: Webhook
+api -> stream
+stream -> function
+stream -d-> dlq: Fail 3 times
+function <-> backloggit: Clone or fetch all
+function -> targetgit: Push
+
+@enduml
