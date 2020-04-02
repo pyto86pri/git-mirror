@@ -35,7 +35,7 @@ API Gateway → Kinesis Stream → Lambda
 
 Kinesis StreamのBatch SizeやShard Countを増やすことで、スループットを上げることが可能。
 
-![AWS構成図](https://github.com/pyto86pri/git-mirror/blob/docs/design.png)
+![AWS構成図](https://github.com/pyto86pri/git-mirror/blob/master/docs/design.png)
 
 ### Usage
 
